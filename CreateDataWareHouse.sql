@@ -6,6 +6,12 @@ create table CompanyDimension(
 )
 go
 
+create table CompanyFact(
+	CompanyId int foreign key references CompanyDimension(CompanyId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
 create table DirectorDimension(
 	DirectorId int identity(1, 1) primary key,
 	Name nvarchar(50),
@@ -13,10 +19,22 @@ create table DirectorDimension(
 )
 go
 
+create table DirectorFact(
+	DirectorId int foreign key references DirectorDimension(DirectorId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
 create table StarDimension(
 	StarId int identity(1, 1) primary key,
 	Name nvarchar(50),
 	Surname nvarchar(50)
+)
+go
+
+create table StarFact(
+	StarId int foreign key references StarDimension(StarId),
+	FactId int foreign key references FactTable(id)
 )
 go
 
@@ -44,6 +62,12 @@ create table CountryDimension(
 )
 go
 
+create table CountryFact(
+	CountryId int foreign key references CountryDimension(CountryId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
 create table NameDimension(
 	NameId int identity(1, 1) primary key,
 	Name nvarchar(150)
@@ -56,16 +80,17 @@ create table GenreDimension(
 )
 go
 
+create table GenreFact(
+	GenreId int foreign key references GenreDimension(GenreId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
 create table FactTable(
 	id int identity(1,1) primary key,
 	NameId int foreign key references NameDimension(NameId),
-	CompanyId int foreign key references CompanyDimension(Companyid),
-	DirectorId int foreign key references DirectorDimension(DirectorId),
 	MonthId int foreign key references MonthDimension(MonthId),
 	YearId int foreign key references YearDimension(YearId),
-	StarId int foreign key references StarDimension(StarId),
-	CountryNameId int foreign key references CountryDimension(CountryId),
-	GenreId int foreign key references GenreDimension(GenreId),
 	RatingId int foreign key references RatingAgeDimension(RatingId),
 	ImbdScore float,
 	VotesNumber int,
@@ -78,8 +103,12 @@ go
 
 drop table MonthDimension
 
-drop table FactTable
-
 drop table DirectorDimension
 
 drop table RatingAgeDimension
+
+drop table CompanyFact
+
+drop Table DirectorFact
+
+drop table FactTable

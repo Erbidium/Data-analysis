@@ -86,12 +86,21 @@ create table GenreFact(
 )
 go
 
+create table OscarDimension(
+	OscarId int identity(1, 1) primary key,
+	CeremonyYear int,
+	Category nvarchar(50),
+	isWinner bit,
+	name nvarchar(50)
+)
+
 create table FactTable(
 	id int identity(1,1) primary key,
 	NameId int foreign key references NameDimension(NameId),
 	MonthId int foreign key references MonthDimension(MonthId),
 	YearId int foreign key references YearDimension(YearId),
 	RatingId int foreign key references RatingAgeDimension(RatingId),
+	OscarId int foreign key references OscarDimension(OscarId),
 	ImbdScore float,
 	VotesNumber int,
 	DurationMinutes float,
@@ -109,6 +118,12 @@ drop table RatingAgeDimension
 
 drop table CompanyFact
 
-drop Table DirectorFact
+drop table DirectorFact
+
+drop table CountryFact
+
+drop table StarFact
+
+drop table GenreFact
 
 drop table FactTable

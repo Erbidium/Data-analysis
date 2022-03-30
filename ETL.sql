@@ -94,17 +94,60 @@ where rating != '' and rating != 'None'
 select *
 from RatingAgeDimension
 
+truncate table GenreDimension
+
 insert into GenreDimension
 select distinct genre
 from moviesStage
 union
-select distinct Genre
-from imdbStage
-where charindex(',', Genre) = 0
-union
-select distinct left(Genre, charindex(',', Genre) - 1)
-from imdbStage
-where charindex(',', Genre) != 0
+select distinct genre
+from getImdbGenres();
+
+
+create function getImdbGenres()
+returns @imdbGenresTable table(genre nvarchar(100))
+as
+begin
+
+	declare @imdbGenresForMovie nvarchar(200);
+
+	declare imdbGenresCursor cursor
+		for select Genre from imdbStage;
+	open imdbGenresCursor;
+
+	fetch next from imdbGenresCursor
+	into @imdbGenresForMovie;
+
+	while @@FETCH_STATUS = 0
+	begin
+		with tempGenres(genre) 
+		as
+		(
+			select * from string_split(@imdbGenresForMovie, ',')
+		)
+		insert @imdbGenresTable
+		select trim(genre) from tempGenres;
+
+		fetch next from imdbGenresCursor
+		into @imdbGenresForMovie;
+	end
+
+	close imdbGenresCursor;
+	deallocate imdbGenresCursor;
+	return;
+end
+
+select distinct *
+from getImdbGenres();
+
+select * from GenreDimension;
+
+
+
+
+
+select * from string_split(
+(select Genre from imdbStage), ',')
 
 select * from GenreDimension
 

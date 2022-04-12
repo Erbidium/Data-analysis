@@ -6,7 +6,7 @@ create table CompanyDimension(
 )
 go
 
-create table CompanyFact(
+create table CompanyMovie(
 	CompanyId int foreign key references CompanyDimension(CompanyId),
 	FactId int foreign key references FactTable(id)
 )
@@ -19,7 +19,7 @@ create table DirectorDimension(
 )
 go
 
-create table DirectorFact(
+create table DirectorMovie(
 	DirectorId int foreign key references DirectorDimension(DirectorId),
 	FactId int foreign key references FactTable(id)
 )
@@ -32,7 +32,7 @@ create table StarDimension(
 )
 go
 
-create table StarFact(
+create table StarMovie(
 	StarId int foreign key references StarDimension(StarId),
 	FactId int foreign key references FactTable(id)
 )
@@ -62,7 +62,7 @@ create table CountryDimension(
 )
 go
 
-create table CountryFact(
+create table CountryMovie(
 	CountryId int foreign key references CountryDimension(CountryId),
 	FactId int foreign key references FactTable(id)
 )
@@ -80,7 +80,7 @@ create table GenreDimension(
 )
 go
 
-create table GenreFact(
+create table GenreMovie(
 	GenreId int foreign key references GenreDimension(GenreId),
 	FactId int foreign key references FactTable(id)
 )
@@ -94,36 +94,55 @@ create table OscarDimension(
 	name nvarchar(50)
 )
 
+create table OscarMovie(
+	OscarId int foreign key references OscarDimension(OscarId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+
 create table FactTable(
 	id int identity(1,1) primary key,
 	NameId int foreign key references NameDimension(NameId),
 	MonthId int foreign key references MonthDimension(MonthId),
 	YearId int foreign key references YearDimension(YearId),
 	RatingId int foreign key references RatingAgeDimension(RatingId),
-	OscarId int foreign key references OscarDimension(OscarId),
 	ImbdScore float,
 	VotesNumber int,
 	DurationMinutes float,
-	HasOscar bit,
 	Budget float,
 	Gross float
 )
 go
 
-drop table MonthDimension
+drop table CompanyMovie
+
+drop table DirectorMovie
+
+drop table CountryMovie
+
+drop table StarMovie
+
+drop table GenreMovie
+
+drop table FactTable
+
+drop table CompanyDimension
+
+drop table CountryDimension
 
 drop table DirectorDimension
 
+drop table GenreDimension
+
+drop table MonthDimension
+
+drop table NameDimension
+
+drop table OscarDimension
+
 drop table RatingAgeDimension
 
-drop table CompanyFact
+drop table StarDimension
 
-drop table DirectorFact
-
-drop table CountryFact
-
-drop table StarFact
-
-drop table GenreFact
-
-drop table FactTable
+drop table YearDimension

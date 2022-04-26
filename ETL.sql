@@ -13,7 +13,6 @@ insert into NameDimension
 select name
 from tempNames;
 
-select * from NameDimension;
 
 with tempCountries(country)
 as
@@ -24,8 +23,6 @@ insert into CountryDimension
 select country
 from tempCountries;
 
-select * from CountryDimension;
-
 
 with tempCompanies(company)
 as
@@ -35,8 +32,6 @@ as
 insert into CompanyDimension
 select company
 from tempCompanies;
-
-select * from CompanyDimension;
 
 
 insert into YearDimension
@@ -49,15 +44,12 @@ union
 select distinct year
 from moviesStage;
 
-select * from YearDimension;
-
 
 insert into MonthDimension
 select distinct left(released, charindex(' ', released) - 1)
 from moviesStage
 where released != '' and isnumeric(left(released, charindex(' ', released) - 1)) = 0;
 
-select * from MonthDimension;
 
 insert into DirectorDimension
 select distinct left(trim(director), charindex(' ', trim(director)) - 1) Name, right(trim(director), len(trim(director)) - charindex(' ', trim(director))) Surname
@@ -68,7 +60,6 @@ select distinct director, null
 from moviesStage
 where director != '' and charindex(' ', trim(director)) = 0;
 
-select * from DirectorDimension;
 
 insert into StarDimension
 select distinct left(trim(star), charindex(' ', trim(star)) - 1) Name, right(trim(star), len(trim(star)) - charindex(' ', trim(star))) Surname
@@ -79,7 +70,6 @@ select distinct star, null
 from moviesStage
 where star != '' and charindex(' ', trim(star)) = 0;
 
-select * from StarDimension;
 
 insert into RatingAgeDimension
 select distinct Certificate
@@ -89,9 +79,6 @@ union
 select distinct rating
 from moviesStage
 where rating != '' and rating != 'None';
-
-select *
-from RatingAgeDimension;
 
 
 insert into GenreDimension
@@ -135,21 +122,11 @@ begin
 	return;
 end;
 
-select distinct *
-from getImdbGenres();
-
-select * from GenreDimension;
-
-
-select * from theOscarAwardStage;
 
 insert into OscarDimension
 select year_ceremony CeremonyYear, category Category, winner isWinner, name
 from theOscarAwardStage;
 
-select * from OscarDimension;
-
-select * from NameDimension
 
 with tb
 as
@@ -201,8 +178,6 @@ left join RatingAgeDimension ON RatingAgeDimension.RatingName = AgeCertificate
 )
 insert into FactTable select * from tbRes;
 
-select * from FactTable;
-
 
 insert into StarMovie
 select StarDimension.StarId StarId, FactTable.id FactId
@@ -217,9 +192,6 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN StarDimension st2 on st2.Name = moviesStage.star;
 
-select * from StarMovie;
-
-
 
 insert into CompanyMovie
 select CompanyDimension.CompanyId CompanyId, FactTable.id FactId
@@ -227,9 +199,6 @@ from FactTable
 INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN CompanyDimension on CompanyDimension.CompanyName = moviesStage.company;
-
-select * from CompanyMovie;
-
 
 
 insert into DirectorMovie
@@ -245,8 +214,6 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN DirectorDimension st2 on st2.Name = moviesStage.director;
 
-select * from DirectorMovie;
-
 
 insert into CountryMovie
 select CountryDimension.CountryId CountryId, FactTable.id FactId
@@ -254,9 +221,6 @@ from FactTable
 INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN CountryDimension on CountryDimension.CountryName = moviesStage.country;
-
-select * from CountryMovie;
-
 
 
 insert into GenreMovie
@@ -272,8 +236,6 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN imdbStage ON NameDimension.Name = imdbStage.Name
 INNER JOIN GenreDimension on imdbStage.Genre LIKE '%' + GenreDimension.GenreName + '%';
 
-select * from GenreMovie;
-
 
 insert into OscarMovie
 select distinct OscarDimension.OscarId OscarId, FactTable.id FactId
@@ -284,9 +246,6 @@ INNER JOIN OscarDimension on OscarDimension.name = theOscarAwardStage.name AND
 						     OscarDimension.Category = theOscarAwardStage.category AND
 							 OscarDimension.CeremonyYear = theOscarAwardStage.year_ceremony AND
 							 OscarDimension.isWinner = theOscarAwardStage.winner;
-
-select * from OscarMovie;
-
 
 
 create function getName(@Name1 nvarchar(200), @Name2 nvarchar(200))
@@ -303,6 +262,7 @@ begin
 	return @Name1
 end;
 
+
 create function getYear(@year1 int, @year2 int)
 returns int
 as
@@ -317,6 +277,7 @@ begin
 	return @year1
 end;
 
+
 create function getMonth(@released nvarchar(50))
 returns nvarchar(50)
 as
@@ -325,6 +286,7 @@ begin
 		return null
 	return left(@released, charindex(' ', @released) - 1)
 end
+
 
 create function getVotesNumber(@votes1 nvarchar(50), @votes2 nvarchar(50))
 returns float 
@@ -340,6 +302,7 @@ begin
 	return try_convert(float, replace(@votes1, ',', '.'))	
 end;
 
+
 create function getScore(@score1 nvarchar(50), @score2 nvarchar(50))
 returns float 
 as
@@ -354,6 +317,7 @@ begin
 	return try_convert(float, @score1)	
 end;
 
+
 create function getDurationMinutes(@duration1 nvarchar(50), @duration2 nvarchar(50))
 returns float 
 as
@@ -367,6 +331,7 @@ begin
 	end
 	return try_convert(float, @duration1)	
 end;
+
 
 create function getCertificate(@cert1 nvarchar(50), @cert2 nvarchar(50))
 returns nvarchar(50) 

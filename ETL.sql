@@ -248,6 +248,47 @@ INNER JOIN DirectorDimension st2 on st2.Name = moviesStage.director;
 select * from DirectorMovie;
 
 
+insert into CountryMovie
+select CountryDimension.CountryId CountryId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN CountryDimension on CountryDimension.CountryName = moviesStage.country;
+
+select * from CountryMovie;
+
+
+
+insert into GenreMovie
+select distinct GenreDimension.GenreId GenreId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN GenreDimension on GenreDimension.GenreName= moviesStage.genre
+UNION
+select distinct GenreDimension.GenreId GenreId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN imdbStage ON NameDimension.Name = imdbStage.Name
+INNER JOIN GenreDimension on imdbStage.Genre LIKE '%' + GenreDimension.GenreName + '%';
+
+select * from GenreMovie;
+
+
+insert into OscarMovie
+select distinct OscarDimension.OscarId OscarId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN theOscarAwardStage ON NameDimension.Name = theOscarAwardStage.film
+INNER JOIN OscarDimension on OscarDimension.name = theOscarAwardStage.name AND
+						     OscarDimension.Category = theOscarAwardStage.category AND
+							 OscarDimension.CeremonyYear = theOscarAwardStage.year_ceremony AND
+							 OscarDimension.isWinner = theOscarAwardStage.winner;
+
+select * from OscarMovie;
+
+
+
 create function getName(@Name1 nvarchar(200), @Name2 nvarchar(200))
 returns nvarchar(200)
 as

@@ -94,7 +94,6 @@ where rating != '' and rating != 'None'
 select *
 from RatingAgeDimension
 
-truncate table GenreDimension
 
 insert into GenreDimension
 select distinct genre
@@ -143,13 +142,15 @@ from getImdbGenres();
 select * from GenreDimension;
 
 
+select * from theOscarAwardStage;
+
+insert into OscarDimension
+select year_ceremony CeremonyYear, category Category, winner isWinner, name
+from theOscarAwardStage;
+
+select * from OscarDimension;
 
 
-
-select * from string_split(
-(select Genre from imdbStage), ',')
-
-select * from GenreDimension
 
 with tb
 as

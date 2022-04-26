@@ -89,9 +89,9 @@ go
 create table OscarDimension(
 	OscarId int identity(1, 1) primary key,
 	CeremonyYear int,
-	Category nvarchar(50),
+	Category nvarchar(150),
 	isWinner bit,
-	name nvarchar(50)
+	name nvarchar(300)
 )
 
 create table OscarMovie(

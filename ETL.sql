@@ -1,5 +1,6 @@
 use MoviesDB
 
+-- NameDimension
 with tempNames(name)
 as
 (
@@ -13,7 +14,7 @@ insert into NameDimension
 select name
 from tempNames;
 
-
+-- CountryDimension
 with tempCountries(country)
 as
 (
@@ -23,7 +24,7 @@ insert into CountryDimension
 select country
 from tempCountries;
 
-
+-- CompanyDimension
 with tempCompanies(company)
 as
 (
@@ -33,7 +34,7 @@ insert into CompanyDimension
 select company
 from tempCompanies;
 
-
+-- CountryDimension
 insert into YearDimension
 select distinct year_film
 from theOscarAwardStage
@@ -44,13 +45,13 @@ union
 select distinct year
 from moviesStage;
 
-
+-- MonthDimension
 insert into MonthDimension
 select distinct left(released, charindex(' ', released) - 1)
 from moviesStage
 where released != '' and isnumeric(left(released, charindex(' ', released) - 1)) = 0;
 
-
+-- DirectorDimension
 insert into DirectorDimension
 select distinct left(trim(director), charindex(' ', trim(director)) - 1) Name, right(trim(director), len(trim(director)) - charindex(' ', trim(director))) Surname
 from moviesStage
@@ -60,7 +61,7 @@ select distinct director, null
 from moviesStage
 where director != '' and charindex(' ', trim(director)) = 0;
 
-
+-- StarDimension
 insert into StarDimension
 select distinct left(trim(star), charindex(' ', trim(star)) - 1) Name, right(trim(star), len(trim(star)) - charindex(' ', trim(star))) Surname
 from moviesStage
@@ -70,7 +71,7 @@ select distinct star, null
 from moviesStage
 where star != '' and charindex(' ', trim(star)) = 0;
 
-
+-- RatingAgeDimension
 insert into RatingAgeDimension
 select distinct Certificate
 from imdbStage
@@ -80,7 +81,7 @@ select distinct rating
 from moviesStage
 where rating != '' and rating != 'None';
 
-
+-- GenreDimension
 insert into GenreDimension
 select distinct genre
 from moviesStage
@@ -122,12 +123,12 @@ begin
 	return;
 end;
 
-
+-- OscarDimension
 insert into OscarDimension
 select year_ceremony CeremonyYear, category Category, winner isWinner, name
 from theOscarAwardStage;
 
-
+-- FactTable
 with tb
 as
 (
@@ -178,7 +179,7 @@ left join RatingAgeDimension ON RatingAgeDimension.RatingName = AgeCertificate
 )
 insert into FactTable select * from tbRes;
 
-
+-- StarMovie
 insert into StarMovie
 select StarDimension.StarId StarId, FactTable.id FactId
 from FactTable
@@ -192,7 +193,7 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN StarDimension st2 on st2.Name = moviesStage.star;
 
-
+-- CompanyMovie
 insert into CompanyMovie
 select CompanyDimension.CompanyId CompanyId, FactTable.id FactId
 from FactTable
@@ -200,7 +201,7 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN CompanyDimension on CompanyDimension.CompanyName = moviesStage.company;
 
-
+-- DirectorMovie
 insert into DirectorMovie
 select DirectorDimension.DirectorId DirectorId, FactTable.id FactId
 from FactTable
@@ -214,7 +215,7 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN DirectorDimension st2 on st2.Name = moviesStage.director;
 
-
+-- CountryMovie
 insert into CountryMovie
 select CountryDimension.CountryId CountryId, FactTable.id FactId
 from FactTable
@@ -222,7 +223,7 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
 INNER JOIN CountryDimension on CountryDimension.CountryName = moviesStage.country;
 
-
+-- GenreMovie
 insert into GenreMovie
 select distinct GenreDimension.GenreId GenreId, FactTable.id FactId
 from FactTable
@@ -236,7 +237,7 @@ INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
 INNER JOIN imdbStage ON NameDimension.Name = imdbStage.Name
 INNER JOIN GenreDimension on imdbStage.Genre LIKE '%' + GenreDimension.GenreName + '%';
 
-
+-- OscarMovie
 insert into OscarMovie
 select distinct OscarDimension.OscarId OscarId, FactTable.id FactId
 from FactTable

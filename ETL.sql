@@ -204,6 +204,21 @@ insert into FactTable select * from tbRes;
 select * from FactTable;
 
 
+insert into StarMovie
+select StarDimension.StarId StarId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN StarDimension on StarDimension.Name + ' ' + StarDimension.Surname = moviesStage.star
+UNION
+select st2.StarId StarId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN StarDimension st2 on st2.Name = moviesStage.star;
+
+select * from StarMovie;
+
 create function getName(@Name1 nvarchar(200), @Name2 nvarchar(200))
 returns nvarchar(200)
 as

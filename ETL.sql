@@ -219,6 +219,35 @@ INNER JOIN StarDimension st2 on st2.Name = moviesStage.star;
 
 select * from StarMovie;
 
+
+
+insert into CompanyMovie
+select CompanyDimension.CompanyId CompanyId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN CompanyDimension on CompanyDimension.CompanyName = moviesStage.company;
+
+select * from CompanyMovie;
+
+
+
+insert into DirectorMovie
+select DirectorDimension.DirectorId DirectorId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN DirectorDimension on DirectorDimension.Name + ' ' + DirectorDimension.Surname = moviesStage.director
+UNION
+select st2.DirectorId DirectorId, FactTable.id FactId
+from FactTable
+INNER JOIN NameDimension on NameDimension.NameId = FactTable.NameId
+INNER JOIN moviesStage ON NameDimension.Name = moviesStage.name
+INNER JOIN DirectorDimension st2 on st2.Name = moviesStage.director;
+
+select * from DirectorMovie;
+
+
 create function getName(@Name1 nvarchar(200), @Name2 nvarchar(200))
 returns nvarchar(200)
 as

@@ -4,17 +4,16 @@ with tempNames(name)
 as
 (
 	select tb.name
-	from (select name from moviesStage union
-	select Name from imdbStage where Type = 'Film' union
-	select distinct film from theOscarAwardStage where category !='ACTOR' and category !='ACTRESS' and category !='MAKEUP') tb
+	from (select name from moviesStage 
+	      union
+	      select Name from imdbStage where Type = 'Film') tb
 	where tb.name !=''
 )
 insert into NameDimension 
 select name
-from tempNames
+from tempNames;
 
-select * from NameDimension
-
+select * from NameDimension;
 
 with tempCountries(country)
 as
@@ -23,9 +22,9 @@ as
 )
 insert into CountryDimension
 select country
-from tempCountries
+from tempCountries;
 
-select * from CountryDimension
+select * from CountryDimension;
 
 
 with tempCompanies(company)
@@ -35,9 +34,9 @@ as
 )
 insert into CompanyDimension
 select company
-from tempCompanies
+from tempCompanies;
 
-select * from CompanyDimension
+select * from CompanyDimension;
 
 
 insert into YearDimension
@@ -48,17 +47,17 @@ select distinct Date
 from imdbStage
 union
 select distinct year
-from moviesStage
+from moviesStage;
 
-select * from YearDimension
+select * from YearDimension;
 
 
 insert into MonthDimension
 select distinct left(released, charindex(' ', released) - 1)
 from moviesStage
-where released != '' and isnumeric(left(released, charindex(' ', released) - 1)) = 0
+where released != '' and isnumeric(left(released, charindex(' ', released) - 1)) = 0;
 
-select * from MonthDimension
+select * from MonthDimension;
 
 insert into DirectorDimension
 select distinct left(trim(director), charindex(' ', trim(director)) - 1) Name, right(trim(director), len(trim(director)) - charindex(' ', trim(director))) Surname
@@ -67,9 +66,9 @@ where director != '' and charindex(' ', trim(director)) != 0
 union
 select distinct director, null
 from moviesStage
-where director != '' and charindex(' ', trim(director)) = 0
+where director != '' and charindex(' ', trim(director)) = 0;
 
-select * from DirectorDimension
+select * from DirectorDimension;
 
 insert into StarDimension
 select distinct left(trim(star), charindex(' ', trim(star)) - 1) Name, right(trim(star), len(trim(star)) - charindex(' ', trim(star))) Surname
@@ -78,9 +77,9 @@ where star != '' and charindex(' ', trim(star)) != 0
 union
 select distinct star, null
 from moviesStage
-where star != '' and charindex(' ', trim(star)) = 0
+where star != '' and charindex(' ', trim(star)) = 0;
 
-select * from StarDimension
+select * from StarDimension;
 
 insert into RatingAgeDimension
 select distinct Certificate
@@ -89,10 +88,10 @@ where Certificate != '' and Certificate != 'None'
 union
 select distinct rating
 from moviesStage
-where rating != '' and rating != 'None'
+where rating != '' and rating != 'None';
 
 select *
-from RatingAgeDimension
+from RatingAgeDimension;
 
 
 insert into GenreDimension
@@ -134,7 +133,7 @@ begin
 	close imdbGenresCursor;
 	deallocate imdbGenresCursor;
 	return;
-end
+end;
 
 select distinct *
 from getImdbGenres();
@@ -150,29 +149,60 @@ from theOscarAwardStage;
 
 select * from OscarDimension;
 
-
+select * from NameDimension
 
 with tb
 as
 (
-select distinct dbo.getName(MovieName, imdbFilmName) NewName, company NewCompany, DirectorId, dbo.getMonth(released) NewMonth, dbo.getYear( cast(Date as int), year) NewYear, StarId, CountryId, MovieGenre, dbo.getScore(score, Rate) imdbScore, country NewCountry, dbo.getVotesNumber(Votes, MovieVotes) * 1000 as VotesNumber, dbo.getDurationMinutes(runtime, Duration) DurationMinutes, budget Budget, gross Gross, Rate, Genre, Certificate, rating
-from (select distinct name as MovieName, rating, genre as MovieGenre, year, released, score, votes as MovieVotes, director, star, country, budget, gross, company, runtime from moviesStage) tb1
-full join (select distinct Name as imdbFilmName, Date, Rate, Votes, Genre, Duration, Certificate from imdbStage where Type = 'Film') tb2
+select distinct dbo.getName(MovieName, imdbFilmName) NewName, 
+dbo.getMonth(released) NewMonth, 
+				dbo.getYear( cast(Date as int), year) NewYear,
+				dbo.getScore(score, Rate) imdbScore,
+				dbo.getVotesNumber(Votes, MovieVotes) * 1000 as VotesNumber, 
+				dbo.getDurationMinutes(runtime, Duration) DurationMinutes, 
+				budget Budget, 
+				gross Gross, 
+				Rate, 
+				dbo.getCertificate(Certificate, rating) AgeCertificate
+from (select distinct name as MovieName, 
+                      rating, 
+					  year, 
+					  released, 
+					  score, 
+					  votes as MovieVotes,  
+					  budget, 
+					  gross,
+					  runtime 
+      from moviesStage) tb1
+full join (select distinct Name as imdbFilmName, 
+                           Date, 
+						   Rate, 
+						   Votes,
+						   Duration, 
+						   Certificate 
+		   from imdbStage where Type = 'Film') tb2
 on tb1.MovieName = tb2.imdbFilmName
-left join StarDimension on StarDimension.Name + ' ' + StarDimension.Surname = star
-left join CountryDimension on country = CountryDimension.CountryName
-left join DirectorDimension on director = DirectorDimension.Name + ' ' + DirectorDimension.Surname
 ),
 tbRes as 
-(select distinct NameId, CompanyId, DirectorId, MonthId, YearId, StarId, CountryId as CountryNameId, null GenreId, null RatingId, imdbScore, VotesNumber, DurationMinutes, null HasOscar, Budget, Gross   from tb
+(select distinct NameId, 
+				 MonthId, 
+				 YearId,
+				 RatingId, 
+				 imdbScore, 
+				 VotesNumber, 
+				 DurationMinutes, 
+				 Budget, 
+				 Gross
+from tb
 left join NameDimension on NameDimension.Name = NewName
-left join CompanyDimension on CompanyDimension.CompanyName = NewCompany
 left join MonthDimension on MonthDimension.Month = NewMonth
 left join YearDimension on YearDimension.Year = NewYear
+left join RatingAgeDimension ON RatingAgeDimension.RatingName = AgeCertificate
 )
-insert into FactTable select * from tbRes
+insert into FactTable select * from tbRes;
 
-select * from FactTable
+select * from FactTable;
+
 
 create function getName(@Name1 nvarchar(200), @Name2 nvarchar(200))
 returns nvarchar(200)
@@ -186,7 +216,7 @@ begin
 			return @Name2			
 	end
 	return @Name1
-end
+end;
 
 create function getYear(@year1 int, @year2 int)
 returns int
@@ -200,7 +230,7 @@ begin
 			return @year2			
 	end
 	return @year1
-end
+end;
 
 create function getMonth(@released nvarchar(50))
 returns nvarchar(50)
@@ -223,7 +253,7 @@ begin
 			return try_convert(float, replace(@votes2, ',', '.'))		
 	end
 	return try_convert(float, replace(@votes1, ',', '.'))	
-end
+end;
 
 create function getScore(@score1 nvarchar(50), @score2 nvarchar(50))
 returns float 
@@ -237,7 +267,7 @@ begin
 			return try_convert(float, @score2)		
 	end
 	return try_convert(float, @score1)	
-end
+end;
 
 create function getDurationMinutes(@duration1 nvarchar(50), @duration2 nvarchar(50))
 returns float 
@@ -251,10 +281,10 @@ begin
 			return try_convert(float, @duration2)		
 	end
 	return try_convert(float, @duration1)	
-end
+end;
 
 create function getCertificate(@cert1 nvarchar(50), @cert2 nvarchar(50))
-returns float 
+returns nvarchar(50) 
 as
 begin
 	if(@cert1 = @cert2)
@@ -265,4 +295,4 @@ begin
 			return @cert2	
 	end
 	return @cert1
-end
+end;

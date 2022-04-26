@@ -6,12 +6,6 @@ create table CompanyDimension(
 )
 go
 
-create table CompanyMovie(
-	CompanyId int foreign key references CompanyDimension(CompanyId),
-	FactId int foreign key references FactTable(id)
-)
-go
-
 create table DirectorDimension(
 	DirectorId int identity(1, 1) primary key,
 	Name nvarchar(50),
@@ -19,22 +13,10 @@ create table DirectorDimension(
 )
 go
 
-create table DirectorMovie(
-	DirectorId int foreign key references DirectorDimension(DirectorId),
-	FactId int foreign key references FactTable(id)
-)
-go
-
 create table StarDimension(
 	StarId int identity(1, 1) primary key,
 	Name nvarchar(50),
 	Surname nvarchar(50)
-)
-go
-
-create table StarMovie(
-	StarId int foreign key references StarDimension(StarId),
-	FactId int foreign key references FactTable(id)
 )
 go
 
@@ -62,12 +44,6 @@ create table CountryDimension(
 )
 go
 
-create table CountryMovie(
-	CountryId int foreign key references CountryDimension(CountryId),
-	FactId int foreign key references FactTable(id)
-)
-go
-
 create table NameDimension(
 	NameId int identity(1, 1) primary key,
 	Name nvarchar(150)
@@ -80,12 +56,6 @@ create table GenreDimension(
 )
 go
 
-create table GenreMovie(
-	GenreId int foreign key references GenreDimension(GenreId),
-	FactId int foreign key references FactTable(id)
-)
-go
-
 create table OscarDimension(
 	OscarId int identity(1, 1) primary key,
 	CeremonyYear int,
@@ -93,13 +63,6 @@ create table OscarDimension(
 	isWinner bit,
 	name nvarchar(300)
 )
-
-create table OscarMovie(
-	OscarId int foreign key references OscarDimension(OscarId),
-	FactId int foreign key references FactTable(id)
-)
-go
-
 
 create table FactTable(
 	id int identity(1,1) primary key,
@@ -115,6 +78,42 @@ create table FactTable(
 )
 go
 
+create table OscarMovie(
+	OscarId int foreign key references OscarDimension(OscarId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+create table CompanyMovie(
+	CompanyId int foreign key references CompanyDimension(CompanyId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+create table DirectorMovie(
+	DirectorId int foreign key references DirectorDimension(DirectorId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+create table StarMovie(
+	StarId int foreign key references StarDimension(StarId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+create table CountryMovie(
+	CountryId int foreign key references CountryDimension(CountryId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
+create table GenreMovie(
+	GenreId int foreign key references GenreDimension(GenreId),
+	FactId int foreign key references FactTable(id)
+)
+go
+
 drop table CompanyMovie
 
 drop table DirectorMovie
@@ -124,6 +123,8 @@ drop table CountryMovie
 drop table StarMovie
 
 drop table GenreMovie
+
+drop table OscarMovie
 
 drop table FactTable
 

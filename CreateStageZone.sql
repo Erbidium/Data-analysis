@@ -1,5 +1,8 @@
 use MoviesDB
 
+/*==============================================================*/
+/* Table: imdbStage */
+/*==============================================================*/
 create table imdbStage(
 	Name nvarchar(150),
 	Date nvarchar(50),
@@ -18,6 +21,9 @@ create table imdbStage(
 )
 go
 
+/*==============================================================*/
+/* Table: moviesStage */
+/*==============================================================*/
 create table moviesStage(
 	name nvarchar(150),
 	rating nvarchar(50),
@@ -37,6 +43,9 @@ create table moviesStage(
 )
 go
 
+/*==============================================================*/
+/* Table: theOscarAwardStage */
+/*==============================================================*/
 create table theOscarAwardStage(
 	year_film int,
 	year_ceremony int,

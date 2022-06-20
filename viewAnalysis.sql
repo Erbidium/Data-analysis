@@ -32,4 +32,9 @@ INNER JOIN (
 	) oscars
 ) nominationsTable ON nominationsTable.id = FactTable.id;
 
-SELECT * FROM moviesAnalysis
+
+CREATE VIEW moviesAnalysisWithAge AS
+ALTER VIEW moviesAnalysisWithAge AS
+SELECT *
+FROM moviesAnalysis
+WHERE RatingName != 'Not Rated' AND RatingName != 'Unrated' AND RatingName IS NOT NULL
